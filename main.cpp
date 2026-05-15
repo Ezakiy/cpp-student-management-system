@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <iomanip>
 #include <windows.h>
 #include <thread>
 #include <chrono>
@@ -16,7 +17,7 @@ struct Student
     string name;
     int age;
     string phone;
-    int grades[MAX_GRADES];
+    int grades[MAX_GRADES] = {0};
 };
 
 // Function Section
@@ -52,19 +53,19 @@ void addStudents(Student students[], int &totalStudents, int maxStudents)
     int quantity;
 
     // Show total students
-    cout << "Current total students in class: " << totalStudents << endl;
+    cout << setw(2) << "Current total students in class: " << totalStudents << endl;
     cout << endl;
 
     // Ask how many students to add
-    cout << "How many students do you want to add?" << endl;
+    cout << setw(2) << "How many students do you want to add?" << endl;
     cin >> quantity;
     cout << endl;
 
     // Check if maximum limit is exceeded
     if (quantity + totalStudents > maxStudents)
     {
-        cout << "Maximum student limit exceeded: " << maxStudents << endl;
-        cout << "You can only add "
+        cout << setw(2) << "Maximum student limit exceeded: " << maxStudents << endl;
+        cout << setw(2) << "You can only add "
              << maxStudents - totalStudents
              << " more students." << endl;
         return;
@@ -75,7 +76,7 @@ void addStudents(Student students[], int &totalStudents, int maxStudents)
     {
         Sleep(150);
 
-        cout << "Maximum student limit already reached." << endl;
+        cout << setw(2) << "Maximum student limit already reached." << endl;
 
         returnMenuTimer(timer);
 
@@ -88,6 +89,7 @@ void addStudents(Student students[], int &totalStudents, int maxStudents)
     for (int i = 0; i < quantity; i++)
     {
         cout << "Student " << totalStudents + 1 << endl;
+        cout << endl;
 
         cout << "Number: ";
         cin >> students[totalStudents].number;
@@ -111,6 +113,11 @@ void addStudents(Student students[], int &totalStudents, int maxStudents)
 
         totalStudents += 1;
     }
+
+    cout << endl;
+    cout << "Exiting...";
+    Sleep(1500);
+    return;
 }
 
 // List students
@@ -130,20 +137,24 @@ void listStudents(Student students[], int totalStudents, int totalGrades)
     {
         cout << "Student " << i + 1 << endl;
 
-        cout << "Number: " << students[i].number << endl;
-        cout << "Name: " << students[i].name << endl;
-        cout << "Age: " << students[i].age << endl;
-        cout << "Phone: " << students[i].phone << endl;
+        cout << left << setw(15) << "Number: " << students[i].number << endl;
+        cout << left << setw(15) << "Name: " << students[i].name << endl;
+        cout << left << setw(15) << "Age: " << students[i].age << endl;
+        cout << left << setw(15) << "Phone: " << students[i].phone << endl;
 
         cout << endl;
 
         // Show grades
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < totalGrades; j++)
         {
-            cout << "Grade " << j + 1
-                 << ": "
-                 << students[i].grades[j]
-                 << endl;
+            if (students[i].grades[j] > 0)
+            {
+                cout << left << setw(10)
+                     << ("Grade " + to_string(j + 1) + ":")
+
+                     << students[i].grades[j]
+                     << endl;
+            }
         }
 
         cout << endl;
@@ -151,28 +162,43 @@ void listStudents(Student students[], int totalStudents, int totalGrades)
         // Show average
         average = calculateAverage(students[i].grades, totalGrades);
 
-        cout << "Average: " << average << endl;
+        if (average > 0)
+        {
+            cout << left << setw(15) << "Average: " << average << endl;
+        }
+        else
+        {
+            cout << "Current student doesn't have grades yet\n";
+        }
 
         // Show status
         if (average >= 10)
         {
             status = "Approved";
-            cout << status << endl;
+            cout << left << setw(15) << "Status:" << status << endl;
         }
-        else
+        else if (average >= 1)
         {
             status = "Failed";
-            cout << status << endl;
+            cout << left << setw(15) << "Status:" << status << endl;
         }
 
         cout << endl;
     }
+
+    cout << endl;
+    cout << "Exiting...";
+    Sleep(1500);
+    return;
 }
 
 // Insert student grades
 void insertGrades(Student students[], int totalStudents, int maxGrades)
 {
     int selectedStudent;
+    string maxSize = "The maximum size of grades is 20/20";
+    cout << "=========== INSERT GRADES ===========\n"
+         << endl;
 
     cout << "Enter the student number to insert grades." << endl;
     cin >> selectedStudent;
@@ -192,28 +218,38 @@ void insertGrades(Student students[], int totalStudents, int maxGrades)
             // Insert grades
             for (int j = 0; j < maxGrades; j++)
             {
-                cout << "Grade " << j + 1 << ": " << endl;
+                do // check if grade inserted < 0 or > 20
+                {
+                    cout << "Grade " << j + 1 << ": " << endl;
+                    cin >> students[i].grades[j];
 
-                cin >> students[i].grades[j];
+                    if (students[i].grades[j] < 0 || students[i].grades[j] > 20)
+                    {
+                        cout << endl;
+                        cout << "Invalid grade." << endl;
+                        cout << "Grades must be between 0 and 20."
+                             << endl;
+                        cout << endl;
+                    }
+                } while(students[i].grades[j] < 0 || 
+                    students[i].grades[j] > 20);
             }
-
             return;
         }
     }
 
     cout << "Student does not exist." << endl;
     cout << endl;
-
+    cout << "Exiting...";
+    Sleep(1500);
     return;
 }
 
-// Search student
+// Search student -- done
 void searchStudent(Student students[], int totalStudents, int totalGrades)
 {
     int studentNumber;
-
     float average = 0;
-
     string status;
 
     cout << "Search student by number: ";
@@ -283,14 +319,19 @@ void searchStudent(Student students[], int totalStudents, int totalGrades)
             cout << endl;
         }
     }
+    cout << endl;
+    cout << "Exiting...";
+    Sleep(1500);
+    return;
 }
 
-// Best student
+// Best student -- done
 void bestStudent(Student students[], int totalStudents, int totalGrades)
 {
     float bestAverage = 0;
-
     int bestStudentIndex = 0;
+
+    cout << "=========== BEST STUDENT ===========" << endl;
 
     // Traverse students
     for (int i = 0; i < totalStudents; i++)
@@ -308,25 +349,54 @@ void bestStudent(Student students[], int totalStudents, int totalGrades)
         }
     }
 
-    cout << "Best student in class: "
-         << students[bestStudentIndex].name
-         << endl;
+    string nome = "Name: " + students[bestStudentIndex].name;
+    string media = "Average: " + to_string(bestAverage);
+    string EGrades = "This student doesn't have any grades yet.";
 
-    cout << "Average: "
-         << bestAverage
-         << endl;
+    if (!students[bestStudentIndex].name.empty())
+    {
+        for (int i = 0; i < nome.length(); i++)
+        {
+            cout << nome[i];
+            Sleep(200);
+        }
 
+        cout << endl;
+
+        if (bestAverage > 0)
+        {
+            for (int i = 0; i < media.length(); i++)
+            {
+                cout << media[i];
+                Sleep(150);
+            }
+        }
+        else
+        {
+            for (int n = 0; n < EGrades.length(); n++)
+            {
+                cout << EGrades[n];
+                Sleep(25);
+            }
+        }
+    }
+    else
+    {
+        cout << "There is no best student yet.\n";
+    }
     cout << endl;
-
+    cout << "Exiting...";
+    Sleep(1500);
     return;
 }
 
-// Worst student
+// Worst student -- done
 void worstStudent(Student students[], int totalStudents, int totalGrades)
 {
     float worstAverage = 20;
-
     int worstStudentIndex = 0;
+
+    cout << "=========== WORST STUDENT ===========" << endl;
 
     // Traverse students
     for (int i = 0; i < totalStudents; i++)
@@ -344,27 +414,57 @@ void worstStudent(Student students[], int totalStudents, int totalGrades)
         }
     }
 
-    cout << "Worst student in class: "
-         << students[worstStudentIndex].name
-         << endl;
+    string nome = "Nome: " + students[worstStudentIndex].name;
+    string worstMedia = "Average: " + to_string(worstAverage);
+    string noGrades = "This student doesn't have any grades yet.";
 
-    cout << "Average: "
-         << worstAverage
-         << endl;
+    if (!students[worstStudentIndex].name.empty())
+    {
+        for (int i = 0; i < nome.length(); i++)
+        {
+            cout << nome[i];
+            Sleep(150);
+        }
+
+        cout << endl;
+
+        if (worstAverage > 0)
+        {
+            for (int i = 0; i < worstMedia.length(); i++)
+            {
+                cout << worstMedia[i];
+                Sleep(150);
+            }
+        }
+        else
+        {
+            for (int n; n < noGrades.length(); n++)
+            {
+                cout << noGrades[n];
+                Sleep(25);
+            }
+        }
+    }
+    else
+    {
+        cout << "There isn't a worst student yet.\n";
+    }
 
     cout << endl;
-
+    cout << "Exiting...";
+    Sleep(1500);
     return;
 }
 
-// Class average
+// Class average -- done
 void classAverage(Student students[], int totalStudents, int totalGrades)
 {
     float average = 0;
     float gradesSum = 0;
-
     int totalExistingGrades = 0;
 
+    cout << "=========== CLASS AVERAGE ===========" << endl;
+    cout << endl;
     // Traverse all students
     for (int i = 0; i < totalStudents; i++)
     {
@@ -379,12 +479,13 @@ void classAverage(Student students[], int totalStudents, int totalGrades)
 
     average = gradesSum / totalExistingGrades;
 
-    cout << "Class average: "
+    cout << left << setw(15) << "Current class average: "
          << average
          << endl;
 
     cout << endl;
-
+    cout << "Exiting...";
+    Sleep(1500);
     return;
 }
 
@@ -401,16 +502,31 @@ int main()
     {
         cout << endl;
 
-        cout << "===== MENU =====" << endl;
+        cout << "================ MENU ================" << endl;
 
-        cout << "1 - Add Students" << endl;
-        cout << "2 - List Students" << endl;
-        cout << "3 - Insert Student Grades" << endl;
-        cout << "4 - Search Student" << endl;
-        cout << "5 - Best Student" << endl;
-        cout << "6 - Worst Student" << endl;
-        cout << "7 - Class Average" << endl;
-        cout << "0 - Exit Application" << endl;
+        cout << setw(5) << "1"
+             << "- Add Students" << endl;
+
+        cout << setw(5) << "2"
+             << "- List Students" << endl;
+
+        cout << setw(5) << "3"
+             << "- Insert Student Grades" << endl;
+
+        cout << setw(5) << "4"
+             << "- Search Student" << endl;
+
+        cout << setw(5) << "5"
+             << "- Best Student" << endl;
+
+        cout << setw(5) << "6"
+             << "- Worst Student" << endl;
+
+        cout << setw(5) << "7"
+             << "- Class Average" << endl;
+
+        cout << setw(5) << "0"
+             << "- Exit Application" << endl;
 
         cout << "Option: ";
 
